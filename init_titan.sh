@@ -3,15 +3,14 @@
 
 set -e
 
-SFDISKCMDS="label=gpt
+SFDISKCMDS="label: gpt
 ,1GiB,uefi
 ,8GiB,swap
 ,100GiB
 ,
 "
 
-if [ $EUID != 0 ]
-then
+if [ $EUID != 0 ]; then
     echo "Must be root to run this script"
     exit 1
 fi
@@ -19,18 +18,23 @@ fi
 read -p "Enter the path to target hard drive: " TGTDRIVE
 read -p "Re-enter the path to confirm: " TGTDRIVECONF
 
-if [ "$TGTDRIVE" != "$TGTDRIVECONF" ]
-then
+if [ "$TGTDRIVE" != "$TGTDRIVECONF" ]; then
     echo "The paths do not match, exiting..."
     exit 1
 fi
 
 read -p "Are you sure you want to format $TGTDRIVE? (Anything other than 'YES' will cancel): " CONFIRM
-if [ $CONFIRM != "YES" ]
-then
+if [ $CONFIRM != "YES" ]; then
     echo "Cancelled."
     exit 1
 fi
+
+if mount | grep $TGTDRIVE; then
+    echo "Cannot proceed because $TGTDRIVE is mounted. Exiting..."
+    exit 1
+fi
+
+swapoff --all
 
 echo "Formatting..."
 echo "$SFDISKCMDS" | sfdisk $TGTDRIVE
@@ -46,5 +50,4 @@ mount ${TGTDRIVE}3 /mnt
 mount --mkdir ${TGTDRIVE}4 /mnt/home
 mount --mkdir ${TGTDRIVE}1 /mnt/boot
 echo "Done."
-
 
