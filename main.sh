@@ -47,7 +47,7 @@ sfdisk $TGTDRIVE <<EOF
 label: gpt
 ,1GiB,uefi
 ,8GiB,swap
-,100GiB
+,50GiB
 ,
 EOF
 
@@ -57,7 +57,7 @@ swapon ${TGTDRIVE}2
 mkfs.ext4 ${TGTDRIVE}3
 mkfs.ext4 ${TGTDRIVE}4
 
-echo "Mounting $TGTDISK... "
+echo "Mounting $TGTDRIVE... "
 mount ${TGTDRIVE}3 /mnt
 mount --mkdir ${TGTDRIVE}4 /mnt/home
 mount --mkdir ${TGTDRIVE}1 /mnt/boot
