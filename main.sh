@@ -58,7 +58,7 @@ mount --mkdir ${TGTDRIVE}4 /mnt/home
 mount --mkdir ${TGTDRIVE}1 /mnt/boot
 echo "Done."
 
-pacstrap -K /mnt base base-devel linux linux-firmware grub networkmanager vim
+pacstrap -K /mnt base base-devel linux linux-firmware grub efibootmgr networkmanager vim
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
