@@ -27,8 +27,8 @@ if [ $EUID != 0 ]; then
 fi
 
 get_input_confirm TGTDRIVE "path to target drive"
-get_input_confirm HOSTNAME "hostname"
-get_input_confirm NEWPASSWD "password"
+get_input_confirm NEWHOSTNAME "new hostname"
+get_input_confirm NEWPASSWD "new password"
 
 read -p "Are you sure you want to format $TGTDRIVE? (Anything other than 'YES' will cancel): " CONFIRM
 if [ $CONFIRM != "YES" ]; then
@@ -74,7 +74,7 @@ locale-gen
 
 echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 
-echo $HOSTNAME > /etc/hosts
+echo $NEWHOSTNAME > /etc/hosts
 
 echo "root:$NEWPASSWD" | chpasswd
 
