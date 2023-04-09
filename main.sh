@@ -1,34 +1,34 @@
 #!/bin/bash
 set -e
 
-get_input_confirm() {
-    VARNAME=$1
-    PROMPTNAME=$2
-    while [ -z ${!VARNAME} ]; do
-        read -p "Enter $PROMPTNAME: " $VARNAME
-        read -p "Re-enter $PROMPTNAME: " VARNAMECONF
-        if [ "${!VARNAME}" != "${VARNAMECONF}" ]; then
-            unset $VARNAME
-            echo "${PROMPTNAME}s do not match, try again"
-        fi
-    done
-}
-
-SFDISKCMDS="label: gpt
-,1GiB,uefi
-,8GiB,swap
-,100GiB
-,
-"
-
 if [ $EUID != 0 ]; then
     echo "Must be root to run this script"
     exit 1
 fi
 
-get_input_confirm TGTDRIVE "path to target drive"
-get_input_confirm NEWHOSTNAME "new hostname"
-get_input_confirm NEWPASSWD "new password"
+EXECNAME=$0
+
+while [ $# -gt 0 ]; do
+    case $1 in
+        -d|--drive)
+            TGTDRIVE=$2
+            shift; shift
+            ;;
+        -h|--hostname)
+            NEWHOSTNAME=$2
+            shift; shift
+            ;;
+        -p|--passwd)
+            ROOTPASSWD=$2
+            shift; shift
+            ;;
+        *)
+            echo "Usage: $EXECNAME -d|--drive <path/to/hdd> -h|--hostname <new hostname> -p|--passwd <new root passwd>"
+            exit 1
+    esac
+done
+
+[ ! -b "$TGTDRIVE" ] && echo "$TGTDRIVE is not a block device, exiting..." && exit 1
 
 read -p "Are you sure you want to format $TGTDRIVE? (Anything other than 'YES' will cancel): " CONFIRM
 if [ $CONFIRM != "YES" ]; then
@@ -43,14 +43,19 @@ fi
 
 swapoff --all
 
-echo "Formatting..."
-echo "$SFDISKCMDS" | sfdisk $TGTDRIVE
+sfdisk $TGTDRIVE <<EOF
+label: gpt
+,1GiB,uefi
+,8GiB,swap
+,100GiB
+,
+EOF
+
 mkfs.fat -F 32 ${TGTDRIVE}1
 mkswap ${TGTDRIVE}2
 swapon ${TGTDRIVE}2
 mkfs.ext4 ${TGTDRIVE}3
 mkfs.ext4 ${TGTDRIVE}4
-echo "Done."
 
 echo "Mounting $TGTDISK... "
 mount ${TGTDRIVE}3 /mnt
@@ -58,7 +63,7 @@ mount --mkdir ${TGTDRIVE}4 /mnt/home
 mount --mkdir ${TGTDRIVE}1 /mnt/boot
 echo "Done."
 
-pacstrap -K /mnt base base-devel linux linux-firmware grub efibootmgr networkmanager vim
+pacstrap -K /mnt base base-devel linux linux-firmware grub efibootmgr vim
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
