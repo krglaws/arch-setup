@@ -58,7 +58,7 @@ mount --mkdir ${TGTDRIVE}4 /mnt/home
 mount --mkdir ${TGTDRIVE}1 /mnt/boot
 echo "Done."
 
-pacstrap -K /mnt base base-devel linux linux-firmware networkmanager vim
+pacstrap -K /mnt base base-devel linux linux-firmware grub networkmanager vim
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -77,5 +77,9 @@ echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 echo $HOSTNAME > /etc/hosts
 
 echo "root:$NEWPASSWD" | chpasswd
+
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+
+grub-mkconfig -o /boot/grub/grub.cfg
 EOF
 
