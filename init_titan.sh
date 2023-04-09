@@ -1,4 +1,4 @@
-#!/bin/sh
+#!sh
 # Boot into arch ISO, run this script to format and mount target drive
 
 set -e
