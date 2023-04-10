@@ -1,5 +1,10 @@
 #!/bin/bash
+
 set -e
+
+################################
+# Functions and argument parsing
+# ------------------------------
 
 if [ $EUID != 0 ]; then
     echo "Must be root to run this script"
@@ -8,38 +13,54 @@ fi
 
 EXECNAME=$0
 
+error_msg() {
+    echo $@ >&2
+    exit 1
+}
+
+usage() {
+    error_msg "Usage: $EXECNAME -d <path/to/drive> -n <new hostname> -p <new root password>"
+}
+
 while [ $# -gt 0 ]; do
     case $1 in
-        -d|--drive)
+        -d)
             TGTDRIVE=$2
             shift; shift
             ;;
-        -h|--hostname)
+        -n)
             NEWHOSTNAME=$2
             shift; shift
             ;;
-        -p|--passwd)
+        -p)
             ROOTPASSWD=$2
             shift; shift
             ;;
         *)
-            echo "Usage: $EXECNAME -d|--drive <path/to/hdd> -h|--hostname <new hostname> -p|--passwd <new root passwd>"
-            exit 1
+            usage
+            ;;
     esac
 done
 
-[ ! -b "$TGTDRIVE" ] && echo "$TGTDRIVE is not a block device, exiting..." && exit 1
 
+############################################
+# Validate args and make sure we can proceed
+# ------------------------------------------
+
+[ -z "$TGTDRIVE" -o -z "$NEWHOSTNAME" -o -z "$ROOTPASSWD" ] && usage
+[ ! -b "$TGTDRIVE" ] && error_msg "'$TGTDRIVE' is not a block device."
 read -p "Are you sure you want to format $TGTDRIVE? (Anything other than 'YES' will cancel): " CONFIRM
 if [ $CONFIRM != "YES" ]; then
-    echo "Cancelled."
-    exit 1
+    error_msg "Cancelled."
+fi
+if mount | grep $TGTDRIVE; then
+    error_msg "Cannot proceed because $TGTDRIVE is mounted. Exiting..."
 fi
 
-if mount | grep $TGTDRIVE; then
-    echo "Cannot proceed because $TGTDRIVE is mounted. Exiting..."
-    exit 1
-fi
+
+#############################
+# Script actually starts here
+# ---------------------------
 
 swapoff --all
 
