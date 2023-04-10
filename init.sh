@@ -77,12 +77,9 @@ mkswap ${TGTDRIVE}2
 swapon ${TGTDRIVE}2
 mkfs.ext4 ${TGTDRIVE}3
 mkfs.ext4 ${TGTDRIVE}4
-
-echo "Mounting $TGTDRIVE... "
 mount ${TGTDRIVE}3 /mnt
 mount --mkdir ${TGTDRIVE}4 /mnt/home
 mount --mkdir ${TGTDRIVE}1 /mnt/boot
-echo "Done."
 
 pacstrap -K /mnt base base-devel linux linux-firmware grub efibootmgr vim
 
@@ -100,7 +97,7 @@ locale-gen
 
 echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 
-echo $NEWHOSTNAME > /etc/hosts
+echo $NEWHOSTNAME > /etc/hostname
 
 echo "root:$NEWPASSWD" | chpasswd
 
