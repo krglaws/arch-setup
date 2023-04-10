@@ -99,7 +99,7 @@ echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 
 echo $NEWHOSTNAME > /etc/hostname
 
-echo "root:$NEWPASSWD" | chpasswd
+echo "root:$ROOTPASSWD" | chpasswd
 
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 
