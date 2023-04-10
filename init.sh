@@ -81,9 +81,10 @@ mount ${TGTDRIVE}3 /mnt
 mount --mkdir ${TGTDRIVE}4 /mnt/home
 mount --mkdir ${TGTDRIVE}1 /mnt/boot
 
-pacstrap -K /mnt base base-devel linux linux-firmware grub efibootmgr vim
+pacstrap -K /mnt base base-devel linux linux-firmware grub efibootmgr vim man-db man-pages
 
 genfstab -U /mnt >> /mnt/etc/fstab
+echo "nameserver 8.8.8.8 1.1.1.1" >> /mnt/etc/resolv.conf
 
 arch-chroot /mnt bash <<EOF
 set -e
