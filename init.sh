@@ -87,38 +87,14 @@ mount --mkdir ${TGTDRIVE}1 /mnt/boot
 
 #pacstrap -K /mnt base base-devel linux linux-firmware grub efibootmgr vim man-db man-pages
 pacstrap -K /mnt - <<EOF
-archlinux-keyring
-bash
-bzip2
-coreutils
-file
-filesystem
-findutils
-gawk
-gcc-libs
-gettext
-glibc
-grep
-gzip
-iproute2
-iputils
-licenses
-pacman
-pciutils
-procps-ng
-psmisc
-sed
-shadow
-tar
-util-linux
-xz
+base
+base-devel
 linux
 linux-firmware
 grub
 efibootmgr
 man-db
 man-pages
-base-devel
 git
 vim
 EOF
