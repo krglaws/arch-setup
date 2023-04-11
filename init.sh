@@ -19,7 +19,7 @@ error_msg() {
 }
 
 usage() {
-    error_msg "Usage: $EXECNAME -d <path/to/drive> -n <new hostname> -p <new root password>"
+    error_msg "Usage: $EXECNAME -d <path/to/drive> -n <new hostname> -p <new root password> -u <admin username>"
 }
 
 while [ $# -gt 0 ]; do
@@ -34,6 +34,10 @@ while [ $# -gt 0 ]; do
             ;;
         -p)
             ROOTPASSWD=$2
+            shift; shift
+            ;;
+        -u)
+            ADMINUSER=$2
             shift; shift
             ;;
         *)
@@ -81,12 +85,49 @@ mount ${TGTDRIVE}3 /mnt
 mount --mkdir ${TGTDRIVE}4 /mnt/home
 mount --mkdir ${TGTDRIVE}1 /mnt/boot
 
-pacstrap -K /mnt base base-devel linux linux-firmware grub efibootmgr vim man-db man-pages
+#pacstrap -K /mnt base base-devel linux linux-firmware grub efibootmgr vim man-db man-pages
+pacstrap -K /mnt - <<EOF
+archlinux-keyring
+bash
+bzip2
+coreutils
+file
+filesystem
+findutils
+gawk
+gcc-libs
+gettext
+glibc
+grep
+gzip
+iproute2
+iputils
+licenses
+pacman
+pciutils
+procps-ng
+psmisc
+sed
+shadow
+tar
+util-linux
+xz
+linux
+linux-firmware
+grub
+efibootmgr
+man-db
+man-pages
+base-devel
+git
+vim
+EOF
 
 genfstab -U /mnt >> /mnt/etc/fstab
 echo "nameserver 8.8.8.8 1.1.1.1" >> /mnt/etc/resolv.conf
 
-arch-chroot /mnt bash <<EOF
+install -m 0766 in_chroot.sh /mnt/root
+arch-chroot /mnt bash -c - <<EOF
 set -e
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 
@@ -101,6 +142,9 @@ echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 echo $NEWHOSTNAME > /etc/hostname
 
 echo "root:$ROOTPASSWD" | chpasswd
+
+groupadd -r sudo
+useradd -m $ADMINUSER -G sudo
 
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 
