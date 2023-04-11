@@ -126,8 +126,7 @@ EOF
 genfstab -U /mnt >> /mnt/etc/fstab
 echo "nameserver 8.8.8.8 1.1.1.1" >> /mnt/etc/resolv.conf
 
-install -m 0766 in_chroot.sh /mnt/root
-arch-chroot /mnt bash -c - <<EOF
+arch-chroot /mnt bash <<EOF
 set -e
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 
